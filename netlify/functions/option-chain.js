@@ -55,7 +55,7 @@ function contractScore(contract, side) {
 
 function pickTopContracts(contracts) { return contracts.slice(0, 2); }
 
-export async function handler(event) {
+module.exports.handler = async function (event) {
   const token = process.env.TRADIER_ACCESS_TOKEN;
   const baseUrl = process.env.TRADIER_BASE_URL || "https://api.tradier.com/v1";
   if (!token) return json(500, { error: "Missing TRADIER_ACCESS_TOKEN in Netlify environment variables." });
