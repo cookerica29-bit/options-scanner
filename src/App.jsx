@@ -361,6 +361,15 @@ export default function App() {
                         <div className={scoreClass(stock.displacementScore)}><span>Displacement</span><strong>{stock.displacementScore}</strong></div>
                       </div>
                     </div>
+                    <button
+                      className="journal-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        saveToJournal(stock);
+                      }}
+                    >
+                      Save to Journal
+                    </button>
                   </button>
                 ))
               )}
