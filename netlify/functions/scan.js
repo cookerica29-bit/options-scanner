@@ -8,7 +8,7 @@ function json(statusCode, body) {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*",
-    },
+    }
     body: JSON.stringify(body),
   };
 }
@@ -288,11 +288,7 @@ async function fetchSymbolData(symbol, apiKey) {
     stock.dailyRangePct >= 2 &&
     stock.bias !== "Neutral";
 
-  const passesSetupFilter =
-    stock.setupQuality === "A" ||
-    (stock.setupQuality === "B" &&
-      stock.finalTradeScore >= 72 &&
-      (stock.timingState === "READY" || stock.timingState === "WATCH"));
+  const passesSetupFilter = true;
 
   if (!passesTickerFilter) {
         return {
