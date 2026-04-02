@@ -282,7 +282,7 @@ async function fetchSymbolData(symbol, apiKey) {
   ));
   stock.reason = buildReason(stock);
 
-  let entrySignal = "NO TRADE";
+  let entrySignal = "NO_TRADE";
 
   if (
     stock.liquidityScore >= 75 &&
@@ -313,7 +313,7 @@ async function fetchSymbolData(symbol, apiKey) {
                 ...stock,
                 dataStatus: "SKIPPED",
                 reason: "Failed ticker filter",
-                entrySignal: "NO TRADE",
+                entrySignal: "NO_TRADE",
         };
   }
 
@@ -322,7 +322,7 @@ async function fetchSymbolData(symbol, apiKey) {
                   ...stock,
                   dataStatus: "LOADED",
                   reason: "Did not meet setup quality threshold",
-                  entrySignal: "NO TRADE",
+                  entrySignal: "NO_TRADE",
           };
     }
 
