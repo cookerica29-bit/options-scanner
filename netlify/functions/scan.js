@@ -282,6 +282,23 @@ async function fetchSymbolData(symbol, apiKey) {
   ));
   stock.reason = buildReason(stock);
 
+  let entrySignal = "NO TRADE";
+
+  if (
+    stock.liquidityScore >= 75 &&
+    stock.displacementScore >= 65 &&
+    stock.timingState === "READY" &&
+    stock.bias !== "NEUTRAL"
+  ) {
+    entrySignal = "READY";
+  } else if (
+    stock.liquidityScore >= 70 &&
+    stock.displacementScore >= 50 &&
+    stock.timingState === "WATCH"
+  ) {
+    entrySignal = "WATCH";
+  }
+
   const passesTickerFilter =
     stock.price >= 10 &&
     stock.relVolume >= 1.2 &&
@@ -296,6 +313,7 @@ async function fetchSymbolData(symbol, apiKey) {
                 ...stock,
                 dataStatus: "SKIPPED",
                 reason: "Failed ticker filter",
+                entrySignal: "NO TRADE",
         };
   }
 
@@ -304,12 +322,14 @@ async function fetchSymbolData(symbol, apiKey) {
                   ...stock,
                   dataStatus: "LOADED",
                   reason: "Did not meet setup quality threshold",
+                  entrySignal: "NO TRADE",
           };
     }
 
     return {
           ...stock,
           dataStatus: "LOADED",
+          entrySignal,
     };
 }
 
