@@ -16,6 +16,7 @@ import {
 
 const defaultSymbols = "AAPL,NVDA,AMD,TSLA,META,PLTR,AMZN,NFLX,SOFI,BA";
 const timingOrder = { READY: 0, WATCH: 1, EARLY: 2, AVOID: 3 };
+const entrySignalOrder = { READY: 0, WATCH: 1, NO_TRADE: 2 };
 
 function scoreClass(score) {
   if (score >= 80) return "score score-strong";
@@ -147,6 +148,7 @@ export default function App() {
     });
 
     list.sort((a, b) => {
+      if (sortBy === "signal") return entrySignalOrder[a.entrySignal] - entrySignalOrder[b.entrySignal];
       if (sortBy === "timing") return timingOrder[a.timingState] - timingOrder[b.timingState];
       if (sortBy === "liquidity") return b.liquidityScore - a.liquidityScore;
       if (sortBy === "displacement") return b.displacementScore - a.displacementScore;
@@ -208,7 +210,8 @@ export default function App() {
             <div className="field">
               <label>Sort by</label>
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                <option value="trade">Trade score</option>
+                <option value="signal">Entry signal</option>
+              <option value="trade">Trade score</option>
                 <option value="timing">Timing</option>
                 <option value="liquidity">Liquidity context</option>
                 <option value="displacement">Displacement</option>
