@@ -294,8 +294,26 @@ async function fetchSymbolData(symbol, apiKey) {
       stock.finalTradeScore >= 72 &&
       (stock.timingState === "READY" || stock.timingState === "WATCH"));
 
-  if (!passesTickerFilter || !passesSetupFilter) return null;
-  return stock;
+  if (!passesTickerFilter) {
+        return {
+                ...stock,
+                dataStatus: "SKIPPED",
+                reason: "Failed ticker filter",
+        };
+  }
+
+    if (!passesSetupFilter) {
+          return {
+                  ...stock,
+                  dataStatus: "LOADED",
+                  reason: "Did not meet setup quality threshold",
+          };
+    }
+
+    return {
+          ...stock,
+          dataStatus: "LOADED",
+    };
 }
 
 export async function handler(event) {
