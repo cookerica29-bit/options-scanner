@@ -304,6 +304,7 @@ export default function App() {
                           <span className={timingClass(stock.timingState)}><span className="timing-dot"></span>{stock.timingState}</span>
                           <span className="pill">{stock.liquidityContext}</span>
                           <span className="pill">{stock.sessionLabel}</span>
+                        <div className={`entry-signal ${stock.entrySignal}`}>{stock.entrySignal.replace("_", " ")}</div>
                         </div>
                         <p className="meta">{stock.reason}</p>
                       </div>
