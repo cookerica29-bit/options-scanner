@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -68,6 +68,49 @@ export default function App() {
   const [contractStatus, setContractStatus] = useState("idle");
   const [contractError, setContractError] = useState("");
   const [contractMeta, setContractMeta] = useState(null);
+  const [journal, setJournal] = useState(() => {
+    const saved = localStorage.getItem("scannerJournal");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("scannerJournal", JSON.stringify(journal));
+  }, [journal]);
+
+  function saveToJournal(stock) {
+    const entry = {
+      id: stock.ticker + "-" + Date.now(),
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString(),
+      ticker: stock.ticker,
+      bias: stock.bias,
+      setupType: stock.setupType,
+      setupQuality: stock.setupQuality,
+      timingState: stock.timingState,
+      entrySignal: stock.entrySignal,
+      setupScore: stock.bestScore,
+      finalTradeScore: stock.finalTradeScore,
+      liquidityScore: stock.liquidityScore,
+      displacementScore: stock.displacementScore,
+      sessionLabel: stock.sessionLabel,
+      liquidityContext: stock.liquidityContext,
+      reason: stock.reason,
+      tradeTaken: "No",
+      outcome: "",
+      notes: "",
+    };
+    setJournal((prev) => [entry, ...prev]);
+  }
+
+  function updateJournalEntry(id, field, value) {
+    setJournal((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    );
+  }
+
+  function deleteJournalEntry(id) {
+    setJournal((prev) => prev.filter((item) => item.id !== id));
+  }
 
   async function runScan() {
     setScanStatus("loading");
