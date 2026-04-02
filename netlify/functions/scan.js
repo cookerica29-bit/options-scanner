@@ -8,7 +8,7 @@ function json(statusCode, body) {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*",
-    }
+    },
     body: JSON.stringify(body),
   };
 }
@@ -312,7 +312,7 @@ async function fetchSymbolData(symbol, apiKey) {
     };
 }
 
-module.exports.handler = async function (event) {
+export async function handler(event) {
   const apiKey = process.env.POLYGON_API_KEY;
   if (!apiKey) return json(500, { error: "Missing POLYGON_API_KEY in Netlify environment variables." });
 
