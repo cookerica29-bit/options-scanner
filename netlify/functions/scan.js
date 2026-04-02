@@ -312,7 +312,7 @@ async function fetchSymbolData(symbol, apiKey) {
     };
 }
 
-export async function handler(event) {
+module.exports.handler = async function (event) {
   const apiKey = process.env.POLYGON_API_KEY;
   if (!apiKey) return json(500, { error: "Missing POLYGON_API_KEY in Netlify environment variables." });
 
