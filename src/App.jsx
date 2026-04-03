@@ -77,6 +77,28 @@ export default function App() {
     localStorage.setItem("scannerJournal", JSON.stringify(journal));
   }, [journal]);
 
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  useEffect(() => {
+    const readySetups = rows.filter((row) => row.entrySignal === "READY");
+
+    if (readySetups.length > 0) {
+      const tickers = readySetups.map((r) => r.ticker).join(", ");
+
+      console.log("🔥 READY setups:", tickers);
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("🔥 READY Setup Detected", {
+          body: "Setups ready: " + tickers,
+        });
+      }
+    }
+  }, [rows]);
+
   function saveToJournal(stock) {
     const entry = {
       id: stock.ticker + "-" + Date.now(),
