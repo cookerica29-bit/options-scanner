@@ -8,7 +8,7 @@ import {
   Radar,
   CandlestickChart,
   Target,
-  Shapes,
+  Shapes
   ShieldCheck,
   Clock3,
   Activity,
@@ -500,6 +500,24 @@ export default function App() {
           )}
         <section className="card contract-panel">
           <div className="section-title">Backtesting Journal</div>
+              <div className="journal-stats">
+                <div className="mini-stat">
+                  <span>Total Entries</span>
+                  <strong>{journal.length}</strong>
+                </div>
+                <div className="mini-stat">
+                  <span>Trades Taken</span>
+                  <strong>{journal.filter((j) => j.tradeTaken === "Yes").length}</strong>
+                </div>
+                <div className="mini-stat">
+                  <span>Wins</span>
+                  <strong>{journal.filter((j) => j.outcome === "Win").length}</strong>
+                </div>
+                <div className="mini-stat">
+                  <span>READY Signals</span>
+                  <strong>{journal.filter((j) => j.entrySignal === "READY").length}</strong>
+                </div>
+              </div>
           {journal.length === 0 ? (
             <div className="empty-state contract-empty">
               <h3>No journal entries yet</h3>
