@@ -286,3 +286,21 @@ textarea { min-height: 86px; resize: vertical; }
 @media (max-width: 760px) {
     .journal-stats { grid-template-columns: 1fr 1fr; }
 }
+
+.top-trade-card {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.top-trade-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .top-trade-grid {
+    grid-template-columns: 1fr;
+  }
+}
