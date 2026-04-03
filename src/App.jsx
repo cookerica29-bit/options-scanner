@@ -498,6 +498,96 @@ export default function App() {
               </table>
             </div>
           )}
+        <section className="card contract-panel">
+          <div className="section-title">Backtesting Journal</div>
+          {journal.length === 0 ? (
+            <div className="empty-state contract-empty">
+              <h3>No journal entries yet</h3>
+              <p>Save setups from the scanner to start tracking them.</p>
+            </div>
+          ) : (
+            <div className="table-wrap">
+              <table className="contract-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Ticker</th>
+                    <th>Bias</th>
+                    <th>Quality</th>
+                    <th>Signal</th>
+                    <th>Trade Score</th>
+                    <th>Trade Taken</th>
+                    <th>Outcome</th>
+                    <th>Notes</th>
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {journal.map((entry) => (
+                    <tr key={entry.id}>
+                      <td>{entry.date}</td>
+                      <td>{entry.ticker}</td>
+                      <td>{entry.bias}</td>
+                      <td>{entry.setupQuality}</td>
+                      <td>
+                        <span className={"entry-signal " + entry.entrySignal}>
+                          {entry.entrySignal === "READY" && "READY"}
+                          {entry.entrySignal === "WATCH" && "WATCH"}
+                          {entry.entrySignal === "NO_TRADE" && "NO TRADE"}
+                        </span>
+                      </td>
+                      <td>{entry.finalTradeScore}</td>
+                      <td>
+                        <select
+                          value={entry.tradeTaken}
+                          onChange={(e) =>
+                            updateJournalEntry(entry.id, "tradeTaken", e.target.value)
+                          }
+                        >
+                          <option value="No">No</option>
+                          <option value="Yes">Yes</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          value={entry.outcome}
+                          onChange={(e) =>
+                            updateJournalEntry(entry.id, "outcome", e.target.value)
+                          }
+                        >
+                          <option value="">Select</option>
+                          <option value="Win">Win</option>
+                          <option value="Loss">Loss</option>
+                          <option value="Breakeven">Breakeven</option>
+                          <option value="No Trade">No Trade</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={entry.notes}
+                          onChange={(e) =>
+                            updateJournalEntry(entry.id, "notes", e.target.value)
+                          }
+                          placeholder="Add notes"
+                        />
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="delete-button"
+                          onClick={() => deleteJournalEntry(entry.id)}
+                        >
+                          X
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
         </section>
       </div>
     </div>
