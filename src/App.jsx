@@ -1,5 +1,67 @@
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEf
+
+      {topTrade && (
+        <section className="card top-trade-card">
+          <div className="section-title">🔥 Top Trade of the Day</div>
+
+          <div className="top-trade-grid">
+            <div>
+              <div className="ticker-row">
+                <h2>{topTrade.ticker}</h2>
+                <span className={biasClass(topTrade.bias)}>{topTrade.bias}</span>
+                <span className={qualityClass(topTrade.setupQuality)}>
+                  {topTrade.setupQuality}
+                </span>
+                <span className={`entry-signal ${topTrade.entrySignal}`}>
+                  {topTrade.entrySignal === "READY" && "🔥 READY"}
+                  {topTrade.entrySignal === "WATCH" && "🟡 WATCH"}
+                  {topTrade.entrySignal === "NO_TRADE" && "🔴 NO TRADE"}
+                </span>
+              </div>
+
+              <p className="reason">{topTrade.reason}</p>
+
+              <div className="chips">
+                <span className="pill">{topTrade.setupType}</span>
+                <span className="pill">{topTrade.sessionLabel}</span>
+                <span className="pill">{topTrade.liquidityContext}</span>
+                <span className="pill">{topTrade.displacementLabel}</span>
+              </div>
+            </div>
+
+            <div className="score-grid">
+              <div className={scoreClass(topTrade.bestScore)}>
+                <span>Setup</span>
+                <strong>{topTrade.bestScore}</strong>
+              </div>
+              <div className={scoreClass(topTrade.finalTradeScore)}>
+                <span>Trade</span>
+                <strong>{topTrade.finalTradeScore}</strong>
+              </div>
+              <div className={scoreClass(topTrade.liquidityScore)}>
+                <span>Liquidity</span>
+                <strong>{topTrade.liquidityScore}</strong>
+              </div>
+              <div className={scoreClass(topTrade.displacementScore)}>
+                <span>Displacement</span>
+                <strong>{topTrade.displacementScore}</strong>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="journal-button"
+            onClick={() => {
+              setSelectedTicker(topTrade.ticker);
+              saveToJournal(topTrade);
+            }}
+          >
+            Save Top Trade to Journal
+          </button>
+        </section>
+      )}fect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -224,6 +286,25 @@ export default function App() {
 
   const selectedRow = filtered.find((r) => r.ticker === selectedTicker) || rows.find((r) => r.ticker === selectedTicker);
 
+  const topTrade = useMemo(() => {
+    if (!rows.length) return null;
+
+    const ranked = [...rows].sort((a, b) => {
+      const signalDiff =
+        (entrySignalOrder[a.entrySignal] ?? 99) -
+        (entrySignalOrder[b.entrySignal] ?? 99);
+      if (signalDiff !== 0) return signalDiff;
+
+      if (b.finalTradeScore !== a.finalTradeScore) {
+        return b.finalTradeScore - a.finalTradeScore;
+      }
+
+      return b.liquidityScore - a.liquidityScore;
+    });
+
+    return ranked[0] || null;
+  }, [rows]);
+
   return (
     <div className="page">
       <div className="container">
@@ -251,6 +332,68 @@ export default function App() {
           </div>
         </motion.section>
 
+
+      {topTrade && (
+        <section className="card top-trade-card">
+          <div className="section-title">🔥 Top Trade of the Day</div>
+
+          <div className="top-trade-grid">
+            <div>
+              <div className="ticker-row">
+                <h2>{topTrade.ticker}</h2>
+                <span className={biasClass(topTrade.bias)}>{topTrade.bias}</span>
+                <span className={qualityClass(topTrade.setupQuality)}>
+                  {topTrade.setupQuality}
+                </span>
+                <span className={`entry-signal ${topTrade.entrySignal}`}>
+                  {topTrade.entrySignal === "READY" && "🔥 READY"}
+                  {topTrade.entrySignal === "WATCH" && "🟡 WATCH"}
+                  {topTrade.entrySignal === "NO_TRADE" && "🔴 NO TRADE"}
+                </span>
+              </div>
+
+              <p className="reason">{topTrade.reason}</p>
+
+              <div className="chips">
+                <span className="pill">{topTrade.setupType}</span>
+                <span className="pill">{topTrade.sessionLabel}</span>
+                <span className="pill">{topTrade.liquidityContext}</span>
+                <span className="pill">{topTrade.displacementLabel}</span>
+              </div>
+            </div>
+
+            <div className="score-grid">
+              <div className={scoreClass(topTrade.bestScore)}>
+                <span>Setup</span>
+                <strong>{topTrade.bestScore}</strong>
+              </div>
+              <div className={scoreClass(topTrade.finalTradeScore)}>
+                <span>Trade</span>
+                <strong>{topTrade.finalTradeScore}</strong>
+              </div>
+              <div className={scoreClass(topTrade.liquidityScore)}>
+                <span>Liquidity</span>
+                <strong>{topTrade.liquidityScore}</strong>
+              </div>
+              <div className={scoreClass(topTrade.displacementScore)}>
+                <span>Displacement</span>
+                <strong>{topTrade.displacementScore}</strong>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="journal-button"
+            onClick={() => {
+              setSelectedTicker(topTrade.ticker);
+              saveToJournal(topTrade);
+            }}
+          >
+            Save Top Trade to Journal
+          </button>
+        </section>
+      )}
         <section className="card filter-card">
           <div className="filter-grid live-grid">
             <div className="field live-symbols">
