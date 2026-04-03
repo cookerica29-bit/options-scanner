@@ -8,7 +8,7 @@ import {
   Radar,
   CandlestickChart,
   Target,
-  Shapes
+  Shapes,
   ShieldCheck,
   Clock3,
   Activity,
