@@ -454,7 +454,7 @@ export default function App() {
                           <span className="pill">{stock.sessionLabel}</span>
                         <div className={`entry-signal ${stock.entrySignal}`}>{stock.entrySignal.replace("_", " ")}</div>
                         </div>
-                        <p className="meta">{stock.reason}</p>
+                        <p className="meta">{stock.blockerReason || "Setup is forming but not yet tradable."}</p>
                       </div>
                       <div className="score-grid">
                         <div className={scoreClass(stock.bestScore)}><span>Setup</span><strong>{stock.bestScore}</strong></div>
