@@ -175,7 +175,38 @@ function getSetupQuality(score) {
 }
 
 function buildReason(stock) {
-    return `${stock.setupType} with ${stock.structureBias.toLowerCase()}, ${stock.liquidityContext.toLowerCase()}, ${stock.displacementLabel.toLowerCase()} displacement, ${stock.sessionLabel.toLowerCase()}, and ${stock.timingState.toLowerCase()} timing.`;
+  if (stock.setupType === "Reversal (Resistance)") {
+    return "Bearish reversal forming near resistance liquidity.";
+  }
+  if (stock.setupType === "Reversal (Support)") {
+    return "Bullish reversal forming near support liquidity.";
+  }
+  if (stock.setupType === "Continuation (Bullish)") {
+    return "Bullish continuation building with structure support.";
+  }
+  if (stock.setupType === "Continuation (Bearish)") {
+    return "Bearish continuation building with downside pressure.";
+  }
+  return "Price is developing but the setup is not clear yet.";
+}
+
+function buildBlockerReason(stock) {
+  if (stock.relVolume < 1.2) {
+    return "Low participation: relative volume is below threshold.";
+  }
+  if (stock.displacementScore < 50) {
+    return "Weak momentum: displacement is below the minimum threshold.";
+  }
+  if (stock.timingState === "AVOID") {
+    return "Timing is not active enough yet.";
+  }
+  if (stock.bias === "Neutral") {
+    return "Bias is neutral, so direction is not clear enough.";
+  }
+  if (stock.roomToMove === "Poor Room") {
+    return "Room to move is too limited.";
+  }
+  return "Setup is forming but not yet tradable.";
 }
 
 async function polygonFetch(path, apiKey) {
@@ -281,6 +312,7 @@ async function fetchSymbolData(symbol, apiKey) {
           0, 100
         ));
     stock.reason = buildReason(stock);
+  stock.blockerReason = buildBlockerReason(stock);
 
   let entrySignal = "NO_TRADE";
     if (
