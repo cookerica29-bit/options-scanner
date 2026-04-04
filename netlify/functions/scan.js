@@ -312,7 +312,7 @@ async function fetchSymbolData(symbol, apiKey) {
           0, 100
         ));
     stock.reason = buildReason(stock);
-  stock.blockerReason = buildBlockerReason(stock);
+    stock.blockerReason = buildBlockerReason(stock);
 
   let entrySignal = "NO_TRADE";
     if (
@@ -342,7 +342,7 @@ async function fetchSymbolData(symbol, apiKey) {
   const passesSetupFilter = true;
 
   if (!passesTickerFilter) {
-        return { ...stock, dataStatus: "SKIPPED", reason: "Failed ticker filter", entrySignal: "NO_TRADE" };
+        return { ...stock, dataStatus: "SKIPPED", reason: "Low participation: relative volume is below threshold.", entrySignal: "NO_TRADE" };
   }
     if (!passesSetupFilter) {
           return { ...stock, dataStatus: "LOADED", reason: "Did not meet setup quality threshold", entrySignal: "NO_TRADE" };
