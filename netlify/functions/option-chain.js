@@ -18,7 +18,13 @@ async function tradierFetch(path, token, baseUrl) {
   const response = await fetch(`${baseUrl}${path}`, {
     headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
   });
-  const data = await response.json();
+  const rawText = await response.text();
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch (_) {
+    throw Object.assign(new Error("Options API returned a non-JSON response"), { details: rawText });
+  }
   if (!response.ok) throw new Error(data?.fault?.faultstring || data?.errors || `Tradier request failed for ${path}`);
   return data;
 }
