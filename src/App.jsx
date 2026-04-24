@@ -51,6 +51,7 @@ export default function App() {
   const [direction, setDirection] = useState("all");
   const [sortBy, setSortBy] = useState("trade");
   const [rows, setRows] = useState([]);
+  const [nearMiss, setNearMiss] = useState([]);
   const [scanStatus, setScanStatus] = useState("idle");
   const [scanError, setScanError] = useState("");
   const [lastUpdated, setLastUpdated] = useState("");
@@ -143,6 +144,7 @@ export default function App() {
       if (!response.ok) throw new Error(data.error || "Failed to load scan data.");
 
       setRows(data.rows || []);
+      setNearMiss(data.nearMiss || []);
       setLastUpdated(data.generatedAt || "");
       setScanStatus("success");
 
@@ -411,8 +413,8 @@ export default function App() {
             <div className="card intelligence-card">
               <div className="section-title"><Activity size={18} /> Precision readout</div>
               <div className="intelligence-grid">
-                <div className="detail"><span>Structure</span><strong>{selectedRow.structureScore}</strong></div>
-                <div className="detail"><span>Location</span><strong>{selectedRow.locationScore}</strong></div>
+                <div className="detail"><span>BOS</span><strong>{selectedRow.structureScore}</strong></div>
+                <div className="detail"><span>OB Zone</span><strong>{selectedRow.locationScore}</strong></div>
                 <div className="detail"><span>Liquidity</span><strong>{selectedRow.liquidityScore}</strong></div>
                 <div className="detail"><span>Displacement</span><strong>{selectedRow.displacementScore}</strong></div>
                 <div className="detail"><span>Session</span><strong>{selectedRow.sessionScore}</strong></div>
@@ -552,6 +554,85 @@ export default function App() {
             </motion.div>
           </div>
         </section>
+
+        {nearMiss.length > 0 && (
+          <section className="card">
+            <div className="section-title" style={{ marginBottom: "12px" }}>
+              <Activity size={18} /> Developing Setups — Near Miss ({nearMiss.length})
+            </div>
+            <p style={{ fontSize: "12px", color: "#888", marginBottom: "16px", marginTop: 0 }}>
+              Structure is forming but not yet tradeable. Watch for the missing criteria.
+            </p>
+            <div className="setup-list">
+              {nearMiss.map((stock) => {
+                const hasTrend  = stock.trend !== "NEUTRAL";
+                const hasBOS    = stock.bosConfirmed;
+                const hasOB     = stock.obHigh !== null && stock.obLow !== null;
+                const atOB      = stock.inOB || stock.nearOB;
+                const trendDir  = stock.trend === "LONG" ? "Bullish" : stock.trend === "SHORT" ? "Bearish" : "Neutral";
+                const biasColor = stock.trend === "LONG" ? "#22c55e" : "#ef4444";
+
+                let missing = "";
+                if (!hasBOS)      missing = `Waiting for BOS — no confirmed break of structure yet.`;
+                else if (!hasOB)  missing = `BOS confirmed but no OB identified in recent structure.`;
+                else if (!atOB)   missing = `Waiting for pullback into OB zone ($${stock.obLow} – $${stock.obHigh}).`;
+
+                const chk = (pass, label) => (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: pass ? "#22c55e" : "#ef4444" }}>
+                    <span style={{ fontWeight: 700 }}>{pass ? "✓" : "✗"}</span>
+                    <span style={{ color: pass ? "#d1fae5" : "#fecaca" }}>{label}</span>
+                  </div>
+                );
+
+                return (
+                  <div key={stock.ticker} className="setup-card" style={{ cursor: "default", opacity: 0.92 }}>
+                    <div className="setup-top">
+                      <div style={{ flex: 1 }}>
+                        <div className="ticker-row" style={{ marginBottom: "10px" }}>
+                          <h3>{stock.ticker}</h3>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: biasColor, background: stock.trend === "LONG" ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)", padding: "2px 8px", borderRadius: "4px" }}>
+                            {trendDir}
+                          </span>
+                          <span style={{ fontSize: "11px", fontWeight: 600, background: "rgba(234,179,8,0.15)", color: "#fbbf24", padding: "2px 8px", borderRadius: "4px" }}>
+                            DEVELOPING
+                          </span>
+                          <span className="pill">{stock.sessionLabel}</span>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 24px", marginBottom: "10px" }}>
+                          {chk(hasTrend,  `Trend confirmed (${stock.trend})`)}
+                          {chk(hasBOS,    "BOS confirmed")}
+                          {chk(hasOB,     "OB identified")}
+                          {chk(atOB,      stock.inOB ? "Price inside OB" : stock.nearOB ? "Price near OB" : "Price at OB zone")}
+                        </div>
+
+                        {missing && (
+                          <div style={{ fontSize: "12px", color: "#fca5a5", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "6px", padding: "6px 10px" }}>
+                            {missing}
+                          </div>
+                        )}
+
+                        <div style={{ display: "flex", gap: "16px", marginTop: "8px", fontSize: "11px", color: "#888" }}>
+                          {hasBOS && stock.bosLevel && <span>BOS @ ${stock.bosLevel}</span>}
+                          {hasOB  && <span>OB ${stock.obLow}–${stock.obHigh}</span>}
+                          <span>RSI {stock.rsi}</span>
+                          <span>Vol {stock.relVolume}x</span>
+                        </div>
+                      </div>
+
+                      <div className="score-grid">
+                        <div className={scoreClass(stock.structureScore)}><span>BOS</span><strong>{stock.structureScore}</strong></div>
+                        <div className={scoreClass(stock.locationScore)}><span>OB Zone</span><strong>{stock.locationScore}</strong></div>
+                        <div className={scoreClass(stock.displacementScore)}><span>Displacement</span><strong>{stock.displacementScore}</strong></div>
+                        <div className={scoreClass(stock.liquidityScore)}><span>Liquidity</span><strong>{stock.liquidityScore}</strong></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section className="card contract-panel">
           <div className="section-title"><Shapes size={18} /> Contract table</div>

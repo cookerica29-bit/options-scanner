@@ -422,13 +422,13 @@ async function fetchSymbolData(symbol, apiKey) {
 
   const passesSetupFilter = stock.bosConfirmed && stock.bias !== "Neutral";
 
-  if (!passesTickerFilter) {
-    return { ...stock, dataStatus: "SKIPPED", reason: "Low participation: price, volume, or range below threshold.", entrySignal: "NO_TRADE" };
-  }
-  if (!passesSetupFilter) {
-    return { ...stock, dataStatus: "LOADED", reason: "No confirmed BOS — waiting for structure.", entrySignal: "NO_TRADE" };
-  }
-  return { ...stock, dataStatus: "LOADED", entrySignal };
+  return {
+    ...stock,
+    dataStatus: passesTickerFilter ? "LOADED" : "SKIPPED",
+    passesTickerFilter,
+    passesSetupFilter: passesTickerFilter && passesSetupFilter,
+    entrySignal: passesTickerFilter ? entrySignal : "NO_TRADE",
+  };
 }
 
 export async function handler(event) {
@@ -438,12 +438,21 @@ export async function handler(event) {
   const symbols = parseSymbols(event.queryStringParameters?.symbols || "");
   if (!symbols.length) return json(400, { error: "Please pass at least one symbol, like ?symbols=AAPL,NVDA,TSLA" });
 
-  const results  = await Promise.allSettled(symbols.map((symbol) => fetchSymbolData(symbol, apiKey)));
-  const rows     = results.filter((r) => r.status === "fulfilled" && r.value).map((r) => r.value);
-  const failures = results.filter((r) => r.status === "rejected").map((r) => r.reason?.message || "Unknown error");
+  const results    = await Promise.allSettled(symbols.map((symbol) => fetchSymbolData(symbol, apiKey)));
+  const allStocks  = results.filter((r) => r.status === "fulfilled" && r.value).map((r) => r.value);
+  const failures   = results.filter((r) => r.status === "rejected").map((r) => r.reason?.message || "Unknown error");
 
-  if (!rows.length) return json(502, { error: failures[0] || "No data returned." });
+  if (!allStocks.length) return json(502, { error: failures[0] || "No data returned." });
 
-  rows.sort((a, b) => b.finalTradeScore - a.finalTradeScore);
-  return json(200, { rows, generatedAt: new Date().toISOString(), failures });
+  // Qualified setups: passes ticker filter AND has confirmed BOS with directional bias
+  const rows = allStocks
+    .filter((s) => s.passesTickerFilter && s.passesSetupFilter)
+    .sort((a, b) => b.finalTradeScore - a.finalTradeScore);
+
+  // Near-miss: passes ticker filter, has directional trend, but not yet a full setup
+  const nearMiss = allStocks
+    .filter((s) => s.passesTickerFilter && !s.passesSetupFilter && s.trend !== "NEUTRAL")
+    .sort((a, b) => b.finalTradeScore - a.finalTradeScore);
+
+  return json(200, { rows, nearMiss, generatedAt: new Date().toISOString(), failures });
 }
